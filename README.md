@@ -1,9 +1,7 @@
 
-#   ===================================================
 #   - Trabalho Prático - Inteligência Artificial  
 #   - Professor Almir O. Artero                  
 #   - Rede Neural Backpropagation   
-#   ===================================================
 
 Para compilar e gerar o executável:
 Dentro do diretório raíz no seu terminal rode:
