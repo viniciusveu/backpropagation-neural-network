@@ -4,8 +4,8 @@
 #   - Rede Neural Backpropagation   
 
 Para compilar e gerar o executável:
-Dentro do diretório raíz no seu terminal rode:
-    ' gcc ./src/main.c -o RedeNeuralBP '
+Dentro do diretório raíz no seu terminal rode: <br>
+    ' gcc ./src/main.c -o RedeNeuralBP -lm '
 
 
 Ambiente de desenvolvimento:
