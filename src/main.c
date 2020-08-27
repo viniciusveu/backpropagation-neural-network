@@ -140,12 +140,12 @@ int main(int argc, char *argv[]) {
     for (int i=0; i<neur_cam_oculta; i++) {
         pesos_o[i] = (double *) malloc(neur_cam_entrada * sizeof(double));
         for (int j=0; j<neur_cam_entrada; j++)
-            pesos_o[i][j] = (double)(rand())/(double)(RAND_MAX)*10;
+            pesos_o[i][j] = (double)(rand())/(double)(RAND_MAX)*0.1;
     }
     for (int i=0; i<neur_cam_saida; i++) {
         pesos_s[i] = (double *) malloc(neur_cam_oculta * sizeof(double));
         for (int j=0; j<neur_cam_oculta; j++)
-            pesos_s[i][j] = (double)(rand())/(double)(RAND_MAX)*10;
+            pesos_s[i][j] = (double)(rand())/(double)(RAND_MAX)*0.1;
     }
 
     puts("\n");
