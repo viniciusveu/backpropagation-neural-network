@@ -1,6 +1,6 @@
 // Trabalho de Inteligencia Artificial - Prof. Almir O. Artero
 
-#include "lib.h"
+#include "funcoes.c"
 
 int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "Portuguese");
@@ -19,11 +19,12 @@ int main(int argc, char *argv[]) {
     int i = 0;
     char val[3];
     char line[150];
+    char line2[15];
     char *valor;
     char *val_ant;
     char final;
-    char resp;
-    int op;
+    char resp;  
+    int quant_amostras = 0;
 
     if(argc == 1) { // Abre arquivo por parâmetro
 
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) {
     
     printf("Arquivo aberto. \n");
 
+
     while (fgets(val, 4, arquivo_treino) != NULL) {    
         i++;
         if (val[2] != ',') {
@@ -63,8 +65,10 @@ int main(int argc, char *argv[]) {
             valor = strtok(NULL, ",");
             
         }
-        
+        quant_amostras++;
     }
+    quant_amostras--;
+    printf("Quant amostras %d \n", quant_amostras);
     neur_cam_saida = val_ant[0] - '0';
     printf("Número de Neurônios na Camada de Saída: %i \n", neur_cam_saida);
     
@@ -79,22 +83,88 @@ int main(int argc, char *argv[]) {
     } else if (resp != 'N') return printf("Opção inválida :( \n");
     printf("Número de Neurônios na Camada Oculta: %i \n", neur_cam_oculta);
 
-    printf("\nQual função de tranferência deseja utilizar? \n");
+
+    printf("\nQual função de transferência deseja utilizar? \n");
     printf("\t 1 - Logística \n");
     printf("\t 2 - Tangente Hiperbólica \n");
     printf("Opção: ");
-    scanf("%i", &op);
-    printf("Q\n");
-    if (op == 1) {
-        printf("Função de Transferência escolhida: 1 - Logística \n");
-    } else if (op != 2) return printf("Opção inválida :( \n");
+    scanf("%i", &opcoes[0]);
+
+    printf("\nQual condição de parada deseja utilizar? \n");
+    printf("\t 1 - Erro Máximo \n");
+    printf("\t 2 - Número de Iterações \n");
+    printf("Opção: ");
+    scanf("%i", &opcoes[1]);
+
+
+    if (opcoes[1] == 1) {
+        float erro_max;
+        printf("Entre com o valor do erro máximo: \n");
+        scanf("%f", &erro_max);
+    } else if (opcoes[1] != 2) return printf("Opção inválida :( \n");
     else {
-        printf("Função de Transferência escolhida: 2 - Tangente Hiperbólica \n");
+        int num_iteracoes;
+        printf("Entre com o valor máximo de iterações: \n");
+        scanf("%d", &num_iteracoes);
     }
 
+    int coluna = 0;
+    int linha = 0;
+    int **matriz_amostras;
+    matriz_amostras = (int **) malloc(quant_amostras * sizeof(sizeof(int *)));
+    rewind(arquivo_treino);
+    fgets(line, sizeof(line), arquivo_treino);
+    printf("Linha descartada: %s \n", line);
+    //fgets(line, sizeof(line), arquivo_treino);
+    while (fgets(line, sizeof(line), arquivo_treino)) {
+        valor = strtok(line, ",");
+        matriz_amostras[linha] = (int *) malloc((neur_cam_entrada+1) * sizeof(int));
+        while (valor != NULL && coluna <= neur_cam_entrada) {
+            //printf("%s\n",valor);
+            matriz_amostras[linha][coluna] = atoi(valor);
+            valor = strtok(NULL, ",");
+            coluna++;
+        }
+        coluna = 0;
+        linha++;
+        if(linha == quant_amostras) break;
+    }
+    ExibeMatrizInt(matriz_amostras, quant_amostras, neur_cam_entrada+1);
 
+    double **pesos_o;
+    pesos_o = (double **) malloc(neur_cam_oculta * sizeof(sizeof(double *)));
+    double **pesos_s;
+    pesos_s = (double **) malloc(neur_cam_saida * sizeof(sizeof(double *)));
+
+    srand(time(NULL));
+    for (int i=0; i<neur_cam_oculta; i++) {
+        pesos_o[i] = (double *) malloc(neur_cam_entrada * sizeof(double));
+        for (int j=0; j<neur_cam_entrada; j++)
+            pesos_o[i][j] = (double)(rand())/(double)(RAND_MAX)*10;
+    }
+    for (int i=0; i<neur_cam_saida; i++) {
+        pesos_s[i] = (double *) malloc(neur_cam_oculta * sizeof(double));
+        for (int j=0; j<neur_cam_oculta; j++)
+            pesos_s[i][j] = (double)(rand())/(double)(RAND_MAX)*10;
+    }
+
+    puts("\n");
+    printf("Pesos iniciais gerados: \n");
+    printf("Camada Oculta: \n");
+    ExibeMatrizDouble(pesos_o, neur_cam_oculta, neur_cam_entrada);
+    puts("\n");
+    printf("Camada de Saída: \n");
+    ExibeMatrizDouble(pesos_s, neur_cam_saida, neur_cam_oculta);
+
+    double erro = __INT_MAX__;
+    for (linha=0; linha<quant_amostras; linha++) {
+        Treinar(matriz_amostras[linha], neur_cam_entrada+1, pesos_o, neur_cam_oculta, neur_cam_entrada, pesos_s, neur_cam_saida, neur_cam_oculta, erro);
+        break;
+    }
+
+    
+    
     printf("\nFinalizando o programa..... \n");
     fclose(arquivo_treino);
-    //system("PAUSE");
     return 0;
 };
