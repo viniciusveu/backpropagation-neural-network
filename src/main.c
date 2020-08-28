@@ -15,15 +15,16 @@ int main(int argc, char *argv[]) {
     printf(" =================================================== \n");
 
     // Declaração das variáveis
-    char nome_arquivo[30];
+    char nome_arquivo_treino[30];
+    char nome_arquivo_teste[30];
     FILE* arquivo_treino;
+    FILE* arquivo_teste;
     int neur_cam_entrada;
     int neur_cam_saida;
     int neur_cam_oculta;
     int i = 0;
     char val[3];
     char line[150];
-    char line2[15];
     char *valor;
     char *val_ant;
     char final;
@@ -35,21 +36,28 @@ int main(int argc, char *argv[]) {
     double erro_max;
     int num_iteracoes;
 
-    // Abrindo o Arquivo
-    if(argc == 1) { // Abre arquivo por parâmetro
-        printf("Você também pode entrar com o nome do arquivo direto nos argumentos. \nEx: ./RedeNeuralBP treinamento.csv \n\n");
-        printf("Entre com o nome do arquivo: \n");
-        scanf("%s", nome_arquivo);
-        printf("Abrindo arquivo: %s \n", nome_arquivo);
+    // Abrindo o arquivos de teste e de treino
+    if(argc == 1) { // Necessita do nome do arquivo
+        printf("Você também pode entrar com o nome do arquivo direto nos argumentos. \nEx: ./RedeNeuralBP treinamento.csv teste.csv\n\n");
+        printf("Entre com o nome do arquivo de treino: \n");
+        scanf("%s", nome_arquivo_treino);
+        printf("Abrindo arquivo: %s \n", nome_arquivo_treino);
 
-    } else if(argc == 2) {// Necessita do nome do arquivo
+        printf("Entre com o nome do arquivo de teste: \n");
+        scanf("%s", nome_arquivo_teste);
+        printf("Abrindo arquivo: %s \n", nome_arquivo_teste);
 
-        strcpy(nome_arquivo, argv[1]);
-        printf("Abrindo arquivo: %s \n", nome_arquivo);
-        
+    } else if(argc > 1) { // Abre arquivo por parâmetro 
+
+        strcpy(nome_arquivo_treino, argv[1]);
+        printf("Abrindo arquivo: %s \n", nome_arquivo_treino);
+
+        strcpy(nome_arquivo_teste, argv[2]);
+        printf("Abrindo arquivo: %s \n", nome_arquivo_teste);
+
     } else return printf("Argumentos inválidos :( \n");
 
-    if(!(arquivo_treino = fopen(nome_arquivo, "r"))) 
+    if(!(arquivo_treino = fopen(nome_arquivo_treino, "r"))) 
         return printf("Arquivo não encontrado! :( \n");
     
     printf("Arquivo aberto. \n");
@@ -187,12 +195,16 @@ int main(int argc, char *argv[]) {
         }
         //break;
     }
-    printf("Num. de iterações realizadas: %d", contador);
-
+    printf("Num. de iterações realizadas: %d \n", contador);
+    printf("O treinamento terminou! :D \n");
     
+
+    // Teste da rede
+    printf("\nSeguindo para os testes da RNA Backpropagation \n");
 
     // Finalizando o programa
     printf("\nFinalizando o programa..... \n");
     fclose(arquivo_treino);
+    fclose(arquivo_teste);
     return 0;
 };
