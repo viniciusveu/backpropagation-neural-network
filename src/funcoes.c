@@ -9,6 +9,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdio_ext.h>
 
 
 // =========================================== 
@@ -52,9 +53,10 @@ double DerTgHiperbolica(double net) {
 
 
 void ExibeMatrizInt(int **matriz, int lin, int col) {
+    printf("teste\n");
     for (int i=0; i<lin; i++) {
         for (int j=0; j<col; j++) {
-            printf(" %d |", matriz[i][j]);
+            printf(" %3d |", matriz[i][j]);
         }
         printf("\n");
     }
@@ -62,11 +64,10 @@ void ExibeMatrizInt(int **matriz, int lin, int col) {
 
 
 void ExibeMatrizDouble(double **matriz, int lin, int col) {
-    printf("Neuronio 1|    2     |    3     |     4    |    5     |     6    |\n");
+    printf("Neuronio 1 |     2     |     3     |     4     |     5     |     6     |     7     | ... \n");
     for (int i=0; i<lin; i++) {
-        for (int j=0; j<col; j++) {
-            printf(" %f |", matriz[i][j]);
-        }
+        for (int j=0; j<col; j++)
+            printf(" %9f |", matriz[i][j]);
         printf("\n");
     }
 }
@@ -104,24 +105,24 @@ double Treinar(int *valores_entrada, int tam_entrada, double **pesos_o, double *
     }
     FuncaoPropagacao(nets_s, saida, neur_cam_saida);
 
-    printf("Valores p/ propagação: \n");
-    for (int i=0; i<neur_cam_oculta; i++) {
-        printf("o->s: %e    |   s: %e \n", propag_o[i], saida[i]);
-    }
+    // printf("Valores p/ propagação: \n");
+    // for (int i=0; i<neur_cam_oculta; i++) {
+    //     printf("o->s: %e    |   s: %e \n", propag_o[i], saida[i]);
+    // }
 
     CalcularErrosSaida(erros_s, valores_entrada[tam_entrada], saida, neur_cam_saida, nets_s);
     CalcularErrosOculta(erros_o, nets_o, neur_cam_oculta, erros_s, neur_cam_saida, pesos_s);
-    printf("Erros da camada de saida e oculta: \n");
-    for (int i=0; i<neur_cam_saida && i<neur_cam_oculta; i++) {
-        printf("Erros Saida: %e | Erros Oculta: %e \n", erros_s[i], erros_o[i]);
-    }
+    // printf("Erros da camada de saida e oculta: \n");
+    // for (int i=0; i<neur_cam_saida && i<neur_cam_oculta; i++) {
+    //     printf("Erros Saida: %e | Erros Oculta: %e \n", erros_s[i], erros_o[i]);
+    // }
 
     AjustaPesosSaida(pesos_s, erros_s, propag_o, neur_cam_saida, neur_cam_oculta);
-    printf("\nMatriz com os pesos da camada de saida refinados: \n");
-    ExibeMatrizDouble(pesos_s, neur_cam_saida, neur_cam_oculta);
+    // printf("\nMatriz com os pesos da camada de saida refinados: \n");
+    // ExibeMatrizDouble(pesos_s, neur_cam_saida, neur_cam_oculta);
     AjustaPesosOculta(pesos_o, erros_o, valores_entrada, neur_cam_entrada, neur_cam_oculta);
-    printf("\nMatriz com os pesos da camada oculta refinados: \n");
-    ExibeMatrizDouble(pesos_o, neur_cam_oculta, neur_cam_entrada);
+    // printf("\nMatriz com os pesos da camada oculta refinados: \n");
+    // ExibeMatrizDouble(pesos_o, neur_cam_oculta, neur_cam_entrada);
 
     return ErroRede(erros_s, neur_cam_saida);
 }
@@ -143,16 +144,19 @@ void CalcularErrosSaida(double *erros_s, int desejado, double *saida, int neur_c
     //printf("%d\n", desejado);
     int desejados[neur_cam_saida];
     desejados[desejado-1] = 1;
-    for (int i=0; i<neur_cam_saida; i++) {
-        if (desejados[i] != 1) desejados[i] = 0;
         //printf(" %i | ", desejados[i]);
-    }
-    if (opcoes[0] == 1) 
-        for (int i=0; i<neur_cam_saida; i++)
+    if (opcoes[0] == 1) {  // Logistica
+        for (int i=0; i<neur_cam_saida; i++) {
+            if (desejados[i] != 1) desejados[i] = 0;
             erros_s[i] = (desejados[i]-saida[i]) * DerLogistica(nets_s[i]);
-    else 
-        for (int i=0; i<neur_cam_saida; i++)
+        }
+    }
+    else // Tg. Hiperbolica
+        for (int i=0; i<neur_cam_saida; i++) {
+            if (desejados[i] != 1) desejados[i] = -1;
             erros_s[i] = (desejados[i]-saida[i]) * DerTgHiperbolica(nets_s[i]);
+        }
+            
 }
 
 void CalcularErrosOculta(double *erros_o, double *nets_o, int neur_cam_oculta, double *erros_s, int neur_cam_saida, double **pesos_s) {
@@ -171,7 +175,7 @@ void CalcularErrosOculta(double *erros_o, double *nets_o, int neur_cam_oculta, d
 void AjustaPesosSaida(double **pesos_s, double *erros_s, double *propag_o, int neur_cam_saida, int neur_cam_oculta){
     for (int neur_s=0; neur_s<neur_cam_saida ; neur_s++) {
         for (int neur_o=0; neur_o<neur_cam_oculta ; neur_o++) {
-            pesos_s[neur_s][neur_o] = pesos_s[neur_s][neur_o] + (erros_s[neur_s] * propag_o[neur_o]);
+            pesos_s[neur_s][neur_o] = pesos_s[neur_s][neur_o] + (tx_aprendizado * erros_s[neur_s] * propag_o[neur_o]);
         }
     }
 }
@@ -179,13 +183,13 @@ void AjustaPesosSaida(double **pesos_s, double *erros_s, double *propag_o, int n
 void AjustaPesosOculta(double **pesos_o, double *erros_o, int *valor_e, int neur_cam_entrada, int neur_cam_oculta) {
     for (int neur_o=0; neur_o<neur_cam_oculta; neur_o++) {
         for (int neur_e=0; neur_e<neur_cam_entrada; neur_e++) {
-            pesos_o[neur_o][neur_e] = pesos_o[neur_o][neur_e] + (erros_o[neur_o] * valor_e[neur_e]);
+            pesos_o[neur_o][neur_e] = pesos_o[neur_o][neur_e] + (tx_aprendizado * erros_o[neur_o] * valor_e[neur_e]);
         }
     }
 }
 
 double ErroRede(double *erros_saida, int neur_cam_saida) {
     double soma = 0;
-    for (int er=0; er<neur_cam_saida; er++) soma =+ pow(erros_saida[er], 2.0);
+    for (int er=0; er<neur_cam_saida; er++) soma = soma + (erros_saida[er] * erros_saida[er]);
     return soma/2.0;
 }

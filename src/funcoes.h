@@ -3,6 +3,7 @@
 #define FUNCOES_H
 
 int opcoes[2];  
+float tx_aprendizado;; // n
 
 void ExibeMatrizInt(int **matriz, int lin, int col);
 void ExibeMatrizDouble(double **matriz, int lin, int col);
