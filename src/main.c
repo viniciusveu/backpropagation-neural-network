@@ -23,16 +23,18 @@ int main(int argc, char *argv[]) {
     int neur_cam_saida;
     int neur_cam_oculta;
     int i = 0;
+    char n[4];
     char val[3];
     char line[150];
     char *valor;
     char *val_ant;
     char final;
     char resp;  
-    int quant_amostras = 0;
+    int quant_amostras = -1;
     int coluna = 0;
     int linha = 0;
     int **matriz_amostras;
+    int **matriz_amostras_teste;
     double erro_max;
     int num_iteracoes;
 
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]) {
         scanf("%s", nome_arquivo_treino);
         printf("Abrindo arquivo: %s \n", nome_arquivo_treino);
 
-        printf("Entre com o nome do arquivo de teste: \n");
+        printf("Agora entre com o nome do arquivo de teste: \n");
         scanf("%s", nome_arquivo_teste);
         printf("Abrindo arquivo: %s \n", nome_arquivo_teste);
 
@@ -59,7 +61,9 @@ int main(int argc, char *argv[]) {
 
     if(!(arquivo_treino = fopen(nome_arquivo_treino, "r"))) 
         return printf("Arquivo não encontrado! :( \n");
-    
+    if(!(arquivo_teste = fopen(nome_arquivo_teste, "r"))) 
+        return printf("Arquivo não encontrado! :( \n");
+
     printf("Arquivo aberto. \n");
 
 
@@ -84,7 +88,6 @@ int main(int argc, char *argv[]) {
         }
         quant_amostras++;
     }
-    quant_amostras--;
     printf("Quantidade de amostras no arquivo : %d \n", quant_amostras);
     neur_cam_saida = val_ant[0] - '0';
     printf("Número de Neurônios na Camada de Saída: %i \n", neur_cam_saida);
@@ -118,21 +121,28 @@ int main(int argc, char *argv[]) {
     printf("Opção: ");
     scanf("%i", &opcoes[1]);
 
-    if (opcoes[1] == 1) {
-        printf("Entre com o valor do erro máximo: \n");
+    if (opcoes[1] == 1) { // Erro max.
+        printf("Entre com o valor do erro máximo: ");
         scanf("%lf", &erro_max);
     } else if (opcoes[1] != 2) return printf("Opção inválida :( \n");
-    else {
-        printf("Entre com o valor máximo de iterações: \n");
+    else {  // Quant iteracoes
+        printf("Entre com o valor máximo de iterações: ");
         scanf("%d", &num_iteracoes);
     }
 
+    // Setando tx de aprendizado (n)                
+    //printf("Taxa de aprendizado padrão: n = 1\n");
+    printf("Entre com uma taxa de aprendizado [padrão: 1]: "); 
+    setbuf(stdin, NULL);
+    scanf("%f", &tx_aprendizado);
+    // if (n != "\n") tx_aprendizado = atof(n);
+    // printf("Taxa de aprendizado: n = %f \n", tx_aprendizado);
 
     // Criando a matriz com as amostras
     matriz_amostras = (int **) malloc(quant_amostras * sizeof(sizeof(int *)));
     rewind(arquivo_treino);
     fgets(line, sizeof(line), arquivo_treino);
-    printf("Linha descartada: %s \n", line);
+    //printf("Linha descartada: %s \n", line);
     //fgets(line, sizeof(line), arquivo_treino);
     while (fgets(line, sizeof(line), arquivo_treino)) {
         valor = strtok(line, ",");
@@ -153,17 +163,17 @@ int main(int argc, char *argv[]) {
     pesos_o = (double **) malloc(neur_cam_oculta * sizeof(sizeof(double *)));
     double **pesos_s;
     pesos_s = (double **) malloc(neur_cam_saida * sizeof(sizeof(double *)));
-    // Gerando pesos aleatórios 
-    srand(time(NULL));
+    // Gerando pesos aleatórios (-0.5 - +0.5)
+    srand48(time(NULL));
     for (int i=0; i<neur_cam_oculta; i++) {
         pesos_o[i] = (double *) malloc(neur_cam_entrada * sizeof(double));
         for (int j=0; j<neur_cam_entrada; j++)
-            pesos_o[i][j] = (double)(rand())/(double)(RAND_MAX)*0.1;
+            pesos_o[i][j] = (double)(mrand48())/(double)(RAND_MAX)*0.5;
     }
     for (int i=0; i<neur_cam_saida; i++) {
         pesos_s[i] = (double *) malloc(neur_cam_oculta * sizeof(double));
         for (int j=0; j<neur_cam_oculta; j++)
-            pesos_s[i][j] = (double)(rand())/(double)(RAND_MAX)*0.1;
+            pesos_s[i][j] = (double)(mrand48())/(double)(RAND_MAX)*0.5;
     }
 
     // Exibindo as matrizes com seus pesos
@@ -179,8 +189,9 @@ int main(int argc, char *argv[]) {
     int contador = 0;
     double erro;
     int classe_posicao = neur_cam_entrada;
-    for (linha=0; linha<quant_amostras; linha++) {
-        erro = Treinar(matriz_amostras[linha], classe_posicao, pesos_o, pesos_s, neur_cam_entrada, neur_cam_oculta, neur_cam_saida);
+    do {
+        for (linha=0; linha<quant_amostras; linha++)
+            erro = Treinar(matriz_amostras[linha], classe_posicao, pesos_o, pesos_s, neur_cam_entrada, neur_cam_oculta, neur_cam_saida);
         contador++;
         if (opcoes[1] == 1) { // erro max
             if( erro <= erro_max) {
@@ -189,18 +200,47 @@ int main(int argc, char *argv[]) {
             }
         } else { // num iter
             if (contador == num_iteracoes) {
-                printf("Número max. de iterações alcançado! Erro da rede: %e\n", erro);
+                printf("Número max. de iterações alcançado! Erro da rede: %f\n", erro);
                 break;
             }
         }
-        //break;
-    }
+    } while (1);
+
+    printf("O treinamento terminou! :D \n\n");
     printf("Num. de iterações realizadas: %d \n", contador);
-    printf("O treinamento terminou! :D \n");
-    
+    puts("\n");
+    printf("Pesos finais obtidos: \n\n");
+    printf("Camada Oculta: \n");
+    ExibeMatrizDouble(pesos_o, neur_cam_oculta, neur_cam_entrada);
+    puts("\n");
+    printf("Camada de Saída: \n");
+    ExibeMatrizDouble(pesos_s, neur_cam_saida, neur_cam_oculta);
+    puts("\n");
 
     // Teste da rede
-    printf("\nSeguindo para os testes da RNA Backpropagation \n");
+    printf("\nSeguindo para os testes da RNA Backpropagation... [em construção]\n");
+
+    quant_amostras = -1;
+    while (fgets(line, sizeof(line), arquivo_teste)) quant_amostras++;
+    printf("Quantidade de amostras para o teste: %d \n", quant_amostras);
+
+    // Criando a matriz com as amostras
+    matriz_amostras_teste = (int **) malloc(quant_amostras * sizeof(sizeof(int *)));
+    rewind(arquivo_teste); linha = coluna = 0;
+    fgets(line, sizeof(line), arquivo_teste);
+    while (fgets(line, sizeof(line), arquivo_teste)) {
+        valor = strtok(line, ",");
+        matriz_amostras_teste[linha] = (int *) malloc((neur_cam_entrada+1) * sizeof(int));
+        while (valor != NULL && coluna < neur_cam_entrada+1) {
+            matriz_amostras_teste[linha][coluna] = atoi(valor);
+            valor = strtok(NULL, ",");
+            coluna++;   
+        }
+        coluna = 0;
+        linha++;
+        if(linha == quant_amostras) break;
+    }
+    //ExibeMatrizInt(matriz_amostras_teste, quant_amostras, neur_cam_entrada+1);
 
     // Finalizando o programa
     printf("\nFinalizando o programa..... \n");
