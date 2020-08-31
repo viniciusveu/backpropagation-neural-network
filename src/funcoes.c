@@ -49,12 +49,12 @@ double TangHiperbolica(double net) {
 
 
 double DerLogistica(double net) {
-    return exp(-net)/( (1.0+exp(-net))*(1.0+exp(-net)) );
+    return (exp(-net)/( (1.0+exp(-net))*(1.0+exp(-net)) ));
 }
 
 
 double DerTgHiperbolica(double net) {
-    return 1.0-pow(DerTgHiperbolica(net), 2.0);
+    return 1.0-pow(TangHiperbolica(net), 2.0);
 }
 
 
@@ -174,6 +174,7 @@ void CalcularErrosSaida(double *erros_s, int desejado, double *saida, int neur_c
         for (int i=0; i<neur_cam_saida; i++)  desejados[i] = 0;
         desejados[desejado-1] = 1;
         for (int i=0; i<neur_cam_saida; i++){
+            //erros_s[i] = (desejados[i]-saida[i]) * saida[i]*(1-saida[i]);
             erros_s[i] = (desejados[i]-saida[i]) * DerLogistica(nets_s[i]);
             //printf(" %f | ", erros_s[i]);
         }
@@ -198,6 +199,7 @@ void CalcularErrosOculta(double *erros_o, double *nets_o, int neur_cam_oculta, d
         }
         if (opcoes[0] == 1)
             erros_o[neur_o] = soma * DerLogistica(nets_o[neur_o]);
+            //erros_o[neur_o] = soma * DerLogistica(nets_o[neur_o]);
         else erros_o[neur_o] = soma * DerTgHiperbolica(nets_o[neur_o]);
     }
 }
