@@ -274,6 +274,8 @@ bool VerificaResultado(int **matriz_confusao, int classe, int quant_neur_e, doub
     //     printf("desejado[i]: %d\n", desejado[i]);
     //     printf("saida[i]: %f\n", saida[i]);
     // }
+    matriz_confusao[classe-1][maior]++;
+
     if (classe-1 == maior) return true;
     else return false;
 }

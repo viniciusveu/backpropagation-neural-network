@@ -250,12 +250,18 @@ int main(int argc, char *argv[]) {
 
     //Criando a matriz de confusão
     int **matriz_confusao = (int **) malloc(neur_cam_saida * sizeof(sizeof(int *)));
-    for (i=0; i<neur_cam_saida; i++) matriz_confusao[i] = (int *) malloc(neur_cam_saida * sizeof(int));
+    for (i=0; i<neur_cam_saida; i++) {
+        matriz_confusao[i] = (int *) malloc(neur_cam_saida * sizeof(int));
+        for (int j=0; j<neur_cam_saida; j++) matriz_confusao[i][j] = 0;
+    }
 
     for (linha=0; linha<quant_amostras; linha++) {
         Testar(matriz_confusao, matriz_amostras_teste[linha], pesos_o, pesos_s, neur_cam_entrada, neur_cam_oculta, neur_cam_saida);
         
     }
+    
+    printf("\nMatriz de confusão obtida: \n");
+    ExibeMatrizInt(matriz_confusao, neur_cam_saida, neur_cam_saida);
 
     // Finalizando o programa
     printf("\nFinalizando o programa..... \n");
