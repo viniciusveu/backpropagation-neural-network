@@ -97,11 +97,11 @@ int main(int argc, char *argv[]) {
     neur_cam_oculta = abs(sqrt(neur_cam_entrada * neur_cam_saida));
     printf("Número de Neurônios na Camada Oculta: %i \n", neur_cam_oculta);
     printf("Deseja alterar o número de neurônios na camada oculta? [S,n]: ");
-    scanf("%c", &resp);
+    setbuf(stdin, NULL); scanf("%c", &resp);
     resp = toupper(resp);
     if (resp == 'S') {
         printf("Entre com o novo número de neurônios na camada oculta: ");
-        scanf("%i", &neur_cam_oculta);
+        setbuf(stdin, NULL); scanf("%i", &neur_cam_oculta);
     } else if (resp != 'N') return printf("Opção inválida :( \n");
     printf("Número de Neurônios na Camada Oculta: %i \n", neur_cam_oculta);
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
         printf("\t 1 - Logística \n");
         printf("\t 2 - Tangente Hiperbólica \n");
         printf("Opção: ");
-        scanf("%i", &opcoes[0]);
+        setbuf(stdin, NULL); scanf("%i", &opcoes[0]);
     } while (opcoes[0] != 1 && opcoes[0] != 2);
     
     // Verificando a condição de parada do treinamento
@@ -120,22 +120,21 @@ int main(int argc, char *argv[]) {
     printf("\t 1 - Erro Máximo \n");
     printf("\t 2 - Número de Iterações \n");
     printf("Opção: ");
-    scanf("%i", &opcoes[1]);
+    setbuf(stdin, NULL); scanf("%i", &opcoes[1]);
 
     if (opcoes[1] == 1) { // Erro max.
         printf("Entre com o valor do erro máximo: ");
-        scanf("%lf", &er_limiar);
+        setbuf(stdin, NULL); scanf("%lf", &er_limiar);
     } else if (opcoes[1] != 2) return printf("Opção inválida :( \n");
     else {  // Quant iteracoes
         printf("Entre com o valor máximo de iterações: ");
-        scanf("%d", &num_iteracoes);
+        setbuf(stdin, NULL); scanf("%d", &num_iteracoes);
     }
 
     // Setando tx de aprendizado (n)                
     //printf("Taxa de aprendizado padrão: n = 1\n");
     printf("Entre com uma taxa de aprendizado [padrão: 0.01]: "); 
-    setbuf(stdin, NULL);
-    scanf("%f", &tx_aprendizado);
+    setbuf(stdin, NULL); scanf("%f", &tx_aprendizado);
     // if (n != "\n") tx_aprendizado = atof(n);
     // printf("Taxa de aprendizado: n = %f \n", tx_aprendizado);
 
@@ -167,16 +166,16 @@ int main(int argc, char *argv[]) {
     double **pesos_s;
     pesos_s = (double **) malloc(neur_cam_saida * sizeof(sizeof(double *)));
     // Gerando pesos aleatórios [-0.5 - +0.5]
-    srand48(time(NULL));
+    srand(time(NULL));
     for (int i=0; i<neur_cam_oculta; i++) {
         pesos_o[i] = (double *) malloc(neur_cam_entrada * sizeof(double));
         for (int j=0; j<neur_cam_entrada; j++)
-            pesos_o[i][j] = (double)(mrand48())/(double)(RAND_MAX)*0.5;
+            pesos_o[i][j] = (double)(rand())/(double)(RAND_MAX)*0.5 - (double)(rand())/(double)(RAND_MAX)*0.5;
     }
     for (int i=0; i<neur_cam_saida; i++) {
         pesos_s[i] = (double *) malloc(neur_cam_oculta * sizeof(double));
         for (int j=0; j<neur_cam_oculta; j++)
-            pesos_s[i][j] = (double)(mrand48())/(double)(RAND_MAX)*0.5;
+            pesos_s[i][j] = (double)(rand())/(double)(RAND_MAX)*0.5 - (double)(rand())/(double)(RAND_MAX)*0.5;
     }
 
 

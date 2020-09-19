@@ -9,8 +9,8 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
-#include <stdio_ext.h>
 #include <stdbool.h>
+//#include <conio.h>
 
 
 // =========================================== 
