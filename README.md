@@ -3,21 +3,29 @@
 #   - Professor Almir O. Artero                  
 #   - Rede Neural Backpropagation   
 
-Para compilar e gerar o executável:
 
+Para rodar o programa:
+
+No Windows basta rodar o executável (.exe).
+
+No Linux: <br>
+
+Cimpile com o gcc: <br>
 Dentro do diretório raíz no seu terminal rode: <br>
-    ' gcc ./src/main.c -o RedeNeuralBP -lm '<br>
+    ' gcc RNA-Backpropagation.c -o RedeNeuralBP -lm '<br>
 
-Para rodar o programa: ./RedeNeuralBP treinamento.csv teste.csv <br>
+Rode o programa: <br>
+./RedeNeuralBP treinamento.csv teste.csv <br>
 Ou apenas ./RedeNeuralBP <br>
+
+
 
 Ambiente de desenvolvimento:
 
-gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0 <br>
+CodeBlocks 20.03 (Windows 10) Microsoft, Inc. <br>
+gcc (Ubuntu 9.3.0-10ubuntu2) 9.3.0,
 Copyright (C) 2019 Free Software Foundation, Inc. <br>
-Caso esteja no Windows 10, siga as instruções para habilitar o linux dentro do Windows: https://velhobit.com.br/tutoriais/como-rodar-bash-ubuntu-windows-10.html <br>
-Depois de habilitar, baixe o terminal do SUSE na loja de aplicativos do Windows que ja possui o GCC: https://www.microsoft.com/store/productId/9PN498VPMF3Z  (pode baixar outros também, como o Ubuntu, e intsar o gcc com o comando: " sudo apt install gcc "). <br>
 
-Alunos:
-- João Pedro S. Baptista
-- Vinícius Vedovotto
+
+Aluno autor:
+- Vinícius Vedovotto, 2020

@@ -3,10 +3,13 @@
 #define FUNCOES_H
 
 // Variaveis globais
+
 int opcoes[2];  // Onde: opcoes[0] armazena a func de transf escolhida e opcoes[1] a opcao de parada do treinamento
 float tx_aprendizado; // n
 
+
 // Prototipo das funcoes 
+
 void ExibeMatrizInt(int **matriz, int lin, int col);
 /* Exibe matriz de inteiros com dimensao lin x col */
 
