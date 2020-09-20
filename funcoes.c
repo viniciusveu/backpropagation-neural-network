@@ -9,12 +9,11 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
-#include <stdio_ext.h>
 #include <stdbool.h>
 
 
-// =========================================== 
-//Prototipos
+// ===========================================
+//Cabeçalho das funcoes
 
 double Logistica(double net);
 double TangHiperbolica(double net);
@@ -35,7 +34,7 @@ double ErroRede(double *erros_saida, int neur_cam_saida);
 bool VerificaResultado(int **matriz_confusao, int classe, int quant_neur_e, double *saida, int quant_neur_s);
 void Testar(int **matriz_confusao, int *valores_entrada, double **pesos_o, double **pesos_s, int neur_cam_entrada, int neur_cam_oculta, int neur_cam_saida);
 
-// =========================================== 
+// ===========================================
 // Funcoes
 
 double Logistica(double net) {
@@ -90,7 +89,7 @@ void EmbaralharLinhas(int **matriz, int linha) {
     }
 }
 
-// matriz_amostras[linha], neur_cam_entrada+1, pesos_o, pesos_s, neur_cam_entrada, neur_cam_oculta, neur_cam_saida
+
 double Treinar(int *valores_entrada, int tam_entrada, double **pesos_o, double **pesos_s, int neur_cam_entrada, int neur_cam_oculta, int neur_cam_saida) {
     double nets_o[neur_cam_oculta];
     double erros_o[neur_cam_oculta];
@@ -99,43 +98,25 @@ double Treinar(int *valores_entrada, int tam_entrada, double **pesos_o, double *
     double nets_s[neur_cam_saida];
     double erros_s[neur_cam_saida];
     double saida[neur_cam_saida];
-    
+
     NetInt(nets_o, neur_cam_oculta, neur_cam_entrada, valores_entrada, pesos_o);
     FuncaoPropagacao(nets_o, propag_o, neur_cam_oculta);
-    
+
     NetDouble(nets_s, neur_cam_saida, neur_cam_oculta, propag_o, pesos_s);
     FuncaoPropagacao(nets_s, saida, neur_cam_saida);
 
-
-    // printf("Valores p/ propagação: \n");
-    // for (int i=0; i<neur_cam_oculta; i++) {
-    //     printf("o->s: %e    |   s: %e \n", propag_o[i], saida[i]);
-    // }
-
     CalcularErrosSaida(erros_s, valores_entrada[tam_entrada], saida, neur_cam_saida, nets_s);
-
     CalcularErrosOculta(erros_o, nets_o, neur_cam_oculta, erros_s, neur_cam_saida, pesos_s);
 
-    // printf("Erros da camada de saida e oculta: \n");
-    // for (int i=0; i<neur_cam_saida && i<neur_cam_oculta; i++) {
-    //     printf("Erros Saida: %e | Erros Oculta: %e \n", erros_s[i], erros_o[i]);
-    // }
-    
     AjustaPesosSaida(pesos_s, erros_s, propag_o, neur_cam_saida, neur_cam_oculta);
-
-    // printf("\nMatriz com os pesos da camada de saida refinados: \n");
-    // ExibeMatrizDouble(pesos_s, neur_cam_saida, neur_cam_oculta);
     AjustaPesosOculta(pesos_o, erros_o, valores_entrada, neur_cam_entrada, neur_cam_oculta);
-    
-    // printf("\nMatriz com os pesos da camada oculta refinados: \n");
-    // ExibeMatrizDouble(pesos_o, neur_cam_oculta, neur_cam_entrada);
 
     return ErroRede(erros_s, neur_cam_saida);
 }
 
 void NetInt(double *nets, int quant_neur, int quant_neur_ant, int *valores, double **pesos) {
     double net;
-    
+
     for (int i=0; i<quant_neur; i++) {
         net = 0;
         for (int j=0; j<quant_neur_ant; j++)
@@ -146,7 +127,7 @@ void NetInt(double *nets, int quant_neur, int quant_neur_ant, int *valores, doub
 
 void NetDouble(double *nets, int quant_neur, int quant_neur_ant, double *valores, double **pesos) {
     double net;
-    
+
     for (int i=0; i<quant_neur; i++) {
         net = 0;
         for (int j=0; j<quant_neur_ant; j++)
@@ -169,16 +150,11 @@ void FuncaoPropagacao(double *nets, double *propag, int quant_neur) {
 void CalcularErrosSaida(double *erros_s, int desejado, double *saida, int neur_cam_saida, double *nets_s) {
     int desejados[neur_cam_saida];
 
-    //printf("classe: %i | ", desejado);
     if (opcoes[0] == 1) {  // Logistica
         for (int i=0; i<neur_cam_saida; i++)  desejados[i] = 0;
         desejados[desejado-1] = 1;
-        for (int i=0; i<neur_cam_saida; i++){
-            //erros_s[i] = (desejados[i]-saida[i]) * saida[i]*(1-saida[i]);
-            erros_s[i] = (desejados[i]-saida[i]) * DerLogistica(nets_s[i]);
-            //printf(" %f | ", erros_s[i]);
-        }
-        //puts("\n");   
+        for (int i=0; i<neur_cam_saida; i++)
+            erros_s[i] = (desejados[i]-saida[i]) * DerLogistica(nets_s[i]);;
     }
     else {// Tg. Hiperbolica
         for (int i=0; i<neur_cam_saida; i++)  desejados[i] = -1;
@@ -186,94 +162,76 @@ void CalcularErrosSaida(double *erros_s, int desejado, double *saida, int neur_c
         for (int i=0; i<neur_cam_saida; i++)
             erros_s[i] = (desejados[i]-saida[i]) * DerTgHiperbolica(nets_s[i]);
     }
-            
+
 }
 
 void CalcularErrosOculta(double *erros_o, double *nets_o, int neur_cam_oculta, double *erros_s, int neur_cam_saida, double **pesos_s) {
     double soma;
-    
+
     for (int neur_o=0; neur_o<neur_cam_oculta; neur_o++) {
         soma=0.0;
-        for (int neur_s=0; neur_s<neur_cam_saida; neur_s++) {
+        for (int neur_s=0; neur_s<neur_cam_saida; neur_s++)
             soma = soma + (erros_s[neur_s] * pesos_s[neur_s][neur_o]);
-        }
+
         if (opcoes[0] == 1)
             erros_o[neur_o] = soma * DerLogistica(nets_o[neur_o]);
-            //erros_o[neur_o] = soma * DerLogistica(nets_o[neur_o]);
         else erros_o[neur_o] = soma * DerTgHiperbolica(nets_o[neur_o]);
     }
 }
 
 void AjustaPesosSaida(double **pesos_s, double *erros_s, double *propag_o, int neur_cam_saida, int neur_cam_oculta){
-    
-    for (int neur_s=0; neur_s<neur_cam_saida ; neur_s++) {
-        for (int neur_o=0; neur_o<neur_cam_oculta ; neur_o++) {
+    for (int neur_s=0; neur_s<neur_cam_saida ; neur_s++)
+        for (int neur_o=0; neur_o<neur_cam_oculta ; neur_o++)
             pesos_s[neur_s][neur_o] = pesos_s[neur_s][neur_o] + (tx_aprendizado * erros_s[neur_s] * propag_o[neur_o]);
-        }
-    }
 }
 
 void AjustaPesosOculta(double **pesos_o, double *erros_o, int *entrada, int neur_cam_entrada, int neur_cam_oculta) {
-    
-    for (int neur_o=0; neur_o<neur_cam_oculta; neur_o++) {
-        for (int neur_e=0; neur_e<neur_cam_entrada; neur_e++) {
+    for (int neur_o=0; neur_o<neur_cam_oculta; neur_o++)
+        for (int neur_e=0; neur_e<neur_cam_entrada; neur_e++)
             pesos_o[neur_o][neur_e] = pesos_o[neur_o][neur_e] + (tx_aprendizado * erros_o[neur_o] * entrada[neur_e]);
-        }
-    }
 }
 
 double ErroRede(double *erros_saida, int neur_cam_saida) {
     double soma = 0;
 
-    for (int er=0; er<neur_cam_saida; er++) soma = soma + (erros_saida[er] * erros_saida[er]);
-    
+    for (int er=0; er<neur_cam_saida; er++)
+        soma = soma + (erros_saida[er] * erros_saida[er]);
+
     return soma/2.0;
 }
 
 void Testar(int **matriz_confusao, int *valores_entrada, double **pesos_o, double **pesos_s, int neur_cam_entrada, int neur_cam_oculta, int neur_cam_saida) {
     double nets_o[neur_cam_oculta];
     double propag_o[neur_cam_oculta];
-    
+
     double nets_s[neur_cam_saida];
     double saida[neur_cam_saida];
 
     NetInt(nets_o, neur_cam_oculta, neur_cam_entrada, valores_entrada, pesos_o);
     FuncaoPropagacao(nets_o, propag_o, neur_cam_oculta);
-    
+
     NetDouble(nets_s, neur_cam_saida, neur_cam_oculta, propag_o, pesos_s);
     FuncaoPropagacao(nets_s, saida, neur_cam_saida);
 
-    // for (int i=0; i<neur_cam_saida; i++) {
-    //     printf("saida[i]: %f\n", saida[i]);
-    // }
-    //(matriz_confusao, valores_entrada[neur_cam_entrada], neur_cam_entrada, saida, neur_cam_saida);
-    if (VerificaResultado(matriz_confusao, valores_entrada[neur_cam_entrada], neur_cam_entrada, saida, neur_cam_saida)) printf("\tAcertou! \n");
-    else printf("\tErrou! \n");
-} 
+    VerificaResultado(matriz_confusao, valores_entrada[neur_cam_entrada], neur_cam_entrada, saida, neur_cam_saida);
+}
 
 bool VerificaResultado(int **matriz_confusao, int classe, int quant_neur_e, double *saida, int quant_neur_s) {
     int desejado[quant_neur_s];
     desejado[classe-1] = 1;
     int maior = 0;
-    printf("Classe: %d\n", classe);
 
     if (opcoes[0] == 1) {
-        for (int i=0; i<quant_neur_s; i++) {
+        for (int i=0; i<quant_neur_s; i++)
             if(desejado[i] != 1) desejado[i] = 0;
-            
-        }
     } else {
-        for (int i=0; i<quant_neur_s; i++) 
+        for (int i=0; i<quant_neur_s; i++)
             if(desejado[i] != 1) desejado[i] = -1;
     }
 
-    for (int i=1; i<quant_neur_s; i++) {
+    for (int i=1; i<quant_neur_s; i++)
         if (saida[i] > saida[maior]) maior = i;
-    }
-    // for (int i=0; i<quant_neur_s; i++) {
-    //     printf("desejado[i]: %d\n", desejado[i]);
-    //     printf("saida[i]: %f\n", saida[i]);
-    // }
+
     matriz_confusao[classe-1][maior]++;
 
     if (classe-1 == maior) return true;
